@@ -13,5 +13,5 @@ Funcionalidades
 Tecnologias Utilizadas
 
     - Frontend: NextJS
-    - Backend (opcional): NextJS
+    - Backend : NodeJS - Strapi
     - Banco de Dados (opcional): SQLite
