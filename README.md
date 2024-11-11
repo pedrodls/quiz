@@ -1,4 +1,4 @@
-# quiz - Projecto da cadeira de Engenharia de Software
+# Projecto da cadeira de Engenharia de Software
 
 # Quiz de Perguntas e Respostas
 
