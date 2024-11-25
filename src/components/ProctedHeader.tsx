@@ -1,11 +1,19 @@
-import React from "react";
-import { Container } from "./Container";
-import Link from "next/link";
+"use client";
 
-export function AppHeader() {
+import React from "react";
+import Link from "next/link";
+import { Container } from "@/components/Container";
+import { useAuth } from "@/hooks/useAuth";
+import { CircleUserRound } from "lucide-react";
+import { useSession } from "@/hooks/useSession";
+
+export function ProctedHeader() {
+  const { logout } = useAuth();
+  const { session } = useSession();
+
   return (
     <header>
-      <nav className="z-10 w-full absolute">
+      <nav className="z-10 w-full fixed bg-white shadow-sm">
         <Container>
           <div className="flex flex-wrap items-center justify-between py-2 gap-6 md:py-4 md:gap-0 relative">
             <input
@@ -17,11 +25,14 @@ export function AppHeader() {
             />
             <div className="relative z-20 w-full flex justify-between items-center lg:w-max md:px-0">
               <Link
-                href="#home"
+                href="#"
                 aria-label="logo"
                 className="flex space-x-2 items-center"
               >
-                <span aria-hidden="true" className="flex space-x-1 items-center">
+                <span
+                  aria-hidden="true"
+                  className="flex space-x-1 items-center"
+                >
                   <span className="h-4 w-4 rounded-full bg-gray-900 dark:bg-white"></span>
                   <span className="h-6 w-2 bg-primary"></span>
                 </span>
@@ -61,26 +72,22 @@ export function AppHeader() {
             >
               <div className="text-gray-600 dark:text-gray-300 lg:pr-4 lg:w-auto w-full lg:pt-0">
                 <ul className="tracking-wide font-medium lg:text-sm flex-col flex lg:flex-row gap-6 lg:gap-0">
-                  <li>
-                    <a
-                      href="#features"
-                      className="block md:px-4 transition hover:text-primary"
-                    >
-                      <span>Features</span>
-                    </a>
+                  <li className="md:px-4 text-primary flex gap-2">
+                    <CircleUserRound size={"20px"} />
+                    <span>{session?.user.username}</span>
                   </li>
                 </ul>
               </div>
 
               <div className="mt-12 lg:mt-0">
-                <Link
-                  href="/login"
+                <button
                   className="relative flex h-9 w-full items-center justify-center px-4 before:absolute before:inset-0 before:rounded-full before:bg-primary before:transition before:duration-300 hover:before:scale-105 active:duration-75 active:before:scale-95 sm:w-max"
+                  onClick={() => logout()}
                 >
                   <span className="relative text-sm font-semibold text-white">
-                    Get Started
+                    Logout
                   </span>
-                </Link>
+                </button>
               </div>
             </div>
           </div>

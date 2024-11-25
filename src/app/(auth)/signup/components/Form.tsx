@@ -5,41 +5,37 @@ import { Loader2, MoveLeft } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { LoginDataType, loginSchema } from "../schema";
 import ImageWithSkeleton from "@/components/ImageWithSkeleton";
+import { SignupDataType, signupSchema } from "../schema";
 import { useAuth } from "@/hooks/useAuth";
 import { PasswordInput } from "@/components/PasswordButton";
 import { useRouter } from "next/navigation";
 
-export function Form() {
+export function SignupForm() {
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginDataType>({
-    resolver: zodResolver(loginSchema),
+  } = useForm<SignupDataType>({
+    resolver: zodResolver(signupSchema),
   });
 
-  const { login, loading, error, user } = useAuth();
-
+  const { signup, loading, error, user } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (user) {
-      // Redireciona para a página de login se o token não for encontrado
-      router.push("/menu");
-    }
-  }, [router, user]);
+    if (user) router.push("/menu");
+  }, [user, router]);
 
-  const onSubmit = async (data: LoginDataType) => {
-    await login(data);
+  const onSubmit = async (data: SignupDataType) => {
+    await signup(data);
   };
 
   return (
     <>
       <div className="font-[sans-serif] ">
         <div className="min-h-screen flex  flex-col items-center justify-center">
-          <div className="grid md:grid-cols-2 items-center gap-4 max-md:gap-8 max-w-6xl max-md:max-w-lg w-full p-4 m-4 shadow-[0px_0px_8px_rgba(0,0,0,0.3)] rounded-md bg-white ">
+          <div className="grid md:grid-cols-2 items-center gap-4 max-md:gap-8 max-w-6xl max-md:max-w-lg w-full p-4 m-4 shadow-[0px_0px_8px_rgba(0,0,0,0.3)] rounded-md bg-white">
             <div className="md:max-w-md w-full px-4 py-4 ">
               <form action="" onSubmit={handleSubmit(onSubmit)}>
                 <div className="mb-12">
@@ -50,12 +46,12 @@ export function Form() {
                     <span>AnsAsk</span>
                   </h3>
                   <p className="text-sm mt-4 text-gray-800">
-                    Não tem conta?{" "}
+                    Já tem conta?{" "}
                     <a
-                      href="/signup"
+                      href="/login"
                       className="text-gray-900 font-semibold hover:underline ml-1 whitespace-nowrap"
                     >
-                      Crie aqui
+                      Entre aqui
                     </a>
                   </p>
                 </div>
@@ -120,6 +116,13 @@ export function Form() {
                   errors={errors}
                 />
 
+                <PasswordInput
+                  description="Confirme Password"
+                  name="confirmPassword"
+                  register={register}
+                  errors={errors}
+                />
+
                 <div className="text-center w-full mt-6">
                   {error && (
                     <span className="block text-red-400 my-4">
@@ -127,22 +130,9 @@ export function Form() {
                       <br />
                     </span>
                   )}
-
-                  <a
-                    href="jajvascript:void(0);"
-                    className="text-gray-900 font-semibold text-sm hover:underline"
-                  >
-                    Forgot Password?
-                  </a>
-
-                  <a
-                    href="http://localhost:1337/" target="_blank"
-                    className="block text-gray-900 font-semibold text-sm hover:underline"
-                  >
-                    admin?
-                  </a>
                 </div>
-                <div className="mt-12 text-center">
+
+                <div className="mt-12">
                   <button
                     type="submit"
                     className={`w-full justify-center flex shadow-xl py-2.5 px-4 text-sm tracking-wide rounded-md text-white bg-gray-600 ${
@@ -150,17 +140,15 @@ export function Form() {
                     } focus:outline-none`}
                     disabled={loading}
                   >
-                    Entrar {loading && <Loader2 className="animate-spin" />}
+                    Criar conta{" "}
+                    {loading && <Loader2 className="animate-spin" />}
                   </button>
                 </div>
               </form>
             </div>
 
             <div className="relative md:h-full  rounded-xl lg:p-12 p-8">
-              <ImageWithSkeleton
-                src="https://readymadeui.com/signin-image.webp"
-                alt="login-image"
-              />
+              <ImageWithSkeleton src="/signup.png" alt="login-image" />
             </div>
           </div>
         </div>

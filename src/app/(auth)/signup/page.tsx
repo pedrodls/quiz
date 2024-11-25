@@ -1,7 +1,11 @@
-import React from 'react'
+import React from "react";
+import { SignupForm } from "./components";
+import { ValidatePublicAuth } from "@/components/ValidatePublicAuth";
 
 export default function Page() {
   return (
-    <>page - signup</>
-  )
+    <ValidatePublicAuth>
+      <SignupForm />
+    </ValidatePublicAuth>
+  );
 }

@@ -1,12 +1,15 @@
 import { HeroSection, AppHeader, Features, AppFooter } from "@/components";
+import { ValidatePublicAuth } from "@/components/ValidatePublicAuth";
 
 export default function Home() {
   return (
-    <div className="bg-white dark:bg-gray-900">
-      <AppHeader />
-      <HeroSection />
-      <Features />
-      <AppFooter />
-    </div>
+    <ValidatePublicAuth>
+      <div className="bg-white dark:bg-gray-900">
+        <AppHeader />
+        <HeroSection />
+        <Features />
+        <AppFooter />
+      </div>
+    </ValidatePublicAuth>
   );
 }
