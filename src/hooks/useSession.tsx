@@ -4,6 +4,7 @@ import { persist } from "zustand/middleware";
 export interface IUserSession {
   username: string;
   email: string;
+  documentId: number;
 }
 
 export interface IAuthSession {

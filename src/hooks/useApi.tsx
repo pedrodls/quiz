@@ -2,14 +2,8 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { apiRequest } from "../utils/api";
+import { apiRequest, RequestOptions } from "../utils/api";
 import { useSession } from "./useSession";
-
-export type useApiProps = {
-  method: "GET" | "POST" | "PUT" | "DELETE";
-  url: string;
-  params?: any
-};
 
 export interface IUseResult {
   loading: boolean;
@@ -18,7 +12,7 @@ export interface IUseResult {
   resolve(): Promise<any>;
 }
 
-export const useApi = ({ method, url, params }: useApiProps): IUseResult => {
+export const useApi = ({ method, url, params, body }: RequestOptions): IUseResult => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<any>(null);
@@ -36,7 +30,8 @@ export const useApi = ({ method, url, params }: useApiProps): IUseResult => {
           "Content-Type": "application/json",
           Authorization: (token ? `Bearer ${token}` : undefined)!,
         },
-        params
+        params,
+        body
       });
 
       if (data) setData(data);
@@ -45,7 +40,7 @@ export const useApi = ({ method, url, params }: useApiProps): IUseResult => {
     } finally {
       setLoading(false);
     }
-  }, [method, url]);
+  }, [method, url, params]);
 
   return {
     resolve,

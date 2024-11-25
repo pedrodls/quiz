@@ -1,6 +1,6 @@
 
 export interface IAnswer {
-    id: number;
+    documentId: number;
     description: string;
     isValid: boolean;
     isValidated: boolean;
@@ -17,6 +17,7 @@ export interface IQuestion {
 export interface PlayProps {
     mode: string | undefined;
     topic: string | undefined;
+    onClose: () => void;
 }
 
 export interface PlayDialogProps {

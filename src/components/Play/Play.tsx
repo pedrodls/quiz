@@ -1,13 +1,26 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { RadioButton } from "@/components/RadioButton";
-import { ArrowDown, ArrowUp } from "lucide-react";
 import { useApi } from "@/hooks/useApi";
-import { Skeleton } from "@/components/ui";
+import { Button, Skeleton } from "@/components/ui";
 import { IAnswer, IQuestion, PlayProps } from "./types";
+import {
+  correctAnswer,
+  errorOnAnswer,
+  requiredAnswer,
+  wrongAnswer,
+} from "./play-alerts";
+import { useSession } from "@/hooks/useSession";
+import { Loader2 } from "lucide-react";
 
-export function Play({ mode, topic }: PlayProps) {
+const strapiUrl = `http://localhost:1337/api/user-answers`;
+
+export function Play({ mode, topic, onClose }: PlayProps) {
+  const [selectedAnswer, setSelectedAnswer] = useState<IAnswer | undefined>();
+
+  const session = useSession().session;
+
   const { data, loading, resolve } = useApi({
     method: "GET",
     url: `play?mode=${mode}&topic=${topic}`,
@@ -23,20 +36,65 @@ export function Play({ mode, topic }: PlayProps) {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const [isValidated, setIsValidated] = useState(false);
-
-  const [selectedAnswer, setSelectedAnswer] = useState<IAnswer | undefined>();
-
   const handleSubmit = async () => {
-    if (!selectedAnswer) return;
-
-    setIsLoading(true);
-
-    if (selectedAnswer.isValid) {
-      setIsValidated(true);
+    if (!selectedAnswer) {
+      requiredAnswer();
+      return;
     }
 
-    setIsLoading(false);
+    await verifyAnswer();
+  };
+
+  const verifyAnswer = async () => {
+    {
+      try {
+        if (questions && index < questions?.data.length) {
+          setIsLoading(true);
+
+          
+          
+          const response = await fetch(strapiUrl, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${session?.jwt}`,
+            },
+            body: JSON.stringify({
+              data: {
+                user: session?.user.documentId,
+                answer: selectedAnswer?.documentId
+              }
+            }),
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+
+            if (selectedAnswer?.isValid) {
+              correctAnswer();
+            } else {
+              wrongAnswer();
+            }
+
+            setSelectedAnswer(undefined);
+
+            setIsLoading(false);
+
+            if (questions && index + 1 === questions?.data.length) {
+              onClose();
+              return;
+            }
+
+            setIndex((i) => i + 1);
+          } else {
+            throw new Error();
+          }
+        }
+      } catch (error) {
+        errorOnAnswer();
+        setIsLoading(false);
+      }
+    }
   };
 
   useEffect(() => {
@@ -44,8 +102,8 @@ export function Play({ mode, topic }: PlayProps) {
   }, []);
 
   useEffect(() => {
-    setPerc(((index + 1) * 100) / questions?.data?.length!);
-  }, [index, answers]);
+    if (questions) setPerc(((index + 1) * 100) / questions?.data?.length);
+  }, [index, answers, questions]);
 
   useEffect(() => {
     if (data) {
@@ -55,20 +113,13 @@ export function Play({ mode, topic }: PlayProps) {
 
   useEffect(() => {
     if (questions) {
-      const newQuetionData = questions.data[index];
-
-      const currentAnswers = questions?.data[index]?.answers.map((a) => ({
-        ...a,
-        isValidated: false, // Adiciona propriedade inicial
-      }));
-
-      setAnswers(currentAnswers);
+      setAnswers(questions?.data[index]?.answers);
     }
   }, [index, questions]);
 
   return (
     <>
-      <div className="font-[sans-serif] ">
+      <div className={`font-[sans-serif]`}>
         <div className=" flex  flex-col items-center justify-center">
           <div className="w-full p-4 m-4   bg-white flex items-center">
             {loading ? (
@@ -90,9 +141,13 @@ export function Play({ mode, topic }: PlayProps) {
                         }?`}
                       </label>
 
-                      <ul className="w-full flex flex-col gap-2">
+                      <ul
+                        className={`w-full flex flex-col gap-2 ${
+                          isLoading ? "opacity-50 pointer-events-none" : ""
+                        }`}
+                      >
                         {answers &&
-                          answers?.map((a, key) => {
+                          answers?.map((a) => {
                             return (
                               <li key={`question-${a.description}`}>
                                 <RadioButton
@@ -124,18 +179,23 @@ export function Play({ mode, topic }: PlayProps) {
                       </div>
 
                       <div className="flex">
-                        <button
+                        <Button
                           onClick={() => handleSubmit()}
-                          type="button"
-                          className="relative flex h-9 w-full items-center justify-center px-4 before:absolute before:inset-0 before:rounded-full before:bg-primary before:transition before:duration-300 hover:before:scale-105 active:duration-75 active:before:scale-95 sm:w-max"
                           disabled={isLoading}
+                          type="button"
                         >
-                          <span className="relative text-sm font-semibold text-white">
-                            {index + 1 === questions?.data.length
-                              ? "Finalizar"
-                              : "Responder"}
-                          </span>
-                        </button>
+                          {isLoading ? (
+                            <>
+                              <Loader2 className="animate-spin" />
+                              Please wait
+                            </>
+                          ) : questions &&
+                            index === questions?.data.length - 1 ? (
+                            "Finalizar"
+                          ) : (
+                            "Responder"
+                          )}
+                        </Button>
                       </div>
                     </div>
                   </form>

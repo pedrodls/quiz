@@ -4,10 +4,14 @@ export async function POST(req: NextRequest) {
 
   try {
 
-    const { searchParams } = new URL(req.url);
+    console.log(req.body)
+    
+    const bodyData = await req.json();
 
-    const userId = searchParams.get('userId');
-    const answerId = searchParams.get('answerId');
+
+    // Agora podemos acessar as propriedades 'userId' e 'answerId'
+    const { userId, answerId } = bodyData;
+
 
     const body = {
       "data": {
@@ -47,6 +51,7 @@ export async function POST(req: NextRequest) {
     );
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
+    console.log(error)
     return new Response(
       JSON.stringify({ error: 'Erro no servidor!' }),
       { status: 401 }

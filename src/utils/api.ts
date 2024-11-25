@@ -4,25 +4,29 @@ export interface RequestOptions {
   method: 'GET' | 'POST' | 'PUT' | 'DELETE';
   headers?: Record<string, string>;
   body?: unknown;
-  params?: unknown
+  params?: unknown;
+  url?: string
 }
 
 export const apiRequest = async <T>(url: string, options: RequestOptions): Promise<T> => {
-  const { method, headers, body } = options;
 
-  const response = await fetch(url, {
-    method,
-    headers: {
-      'Content-Type': 'application/json',
-      ...headers,
-    },
-    body: body ? JSON.stringify(body) : undefined,
-  });
+  try {
+    const { method, headers, body } = options;
 
-  const data = await response.json();
+    const response = await fetch(url, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        ...headers,
+      },
+      body: body ? JSON.stringify(body) : undefined,
+    });
 
-  if (data.error)
-    throw new Error(data.error);
+    const data = await response.json();
 
-  return data;
+    return data;
+
+  } catch (error: any) {
+    throw new Error(error);
+  }
 };
